@@ -5,7 +5,7 @@ import inspect
 import re
 import random
 
-openai.api_key = input("Enter your OpenAI api key: ")
+openai.api_key = input("Please enter your OpenAI api key:\n>>>")
 
 
 class spotify:
@@ -14,36 +14,46 @@ class spotify:
     def play(self, song):
         pass
 
+def extract(func_call, **kwargs):
+    match = re.match(r"(\w+)\((.*?)\)", func_call)
+    if match:
+        args = match.group(2)
+        return args, kwargs
+    else:
+        return None, kwargs
 
 def smart_function(func):
     @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        query = kwargs.pop("query", None)
+    def wrapper(query):
         if query:
             model = "gpt-3.5-turbo"
-            function_signature = inspect.getsource(func).split("\n")[1:-1]
-
+            function_signature = inspect.getsource(func).split("\n")[0:-1]
+            function_signature = "```\n".join(function_signature[1:min(5,len(function_signature)-1)]) + "\n\t...```"
+            print(function_signature)
             messages = [
                 {"role": "system",
-                 "content": f"Random seed: {random.randint(0,1000)}. Generate code that calls {function_signature}. Stick to the format: {func.__name__}(arg1, arg2, ...)."
-                            f"If the user asks to 'check the weather in a sunny location' and the function is 'def check_weather(location)'"
-                            f"simply return ```check_weather('Hawaii')"},
-                {"role": "user", "content": query}
+                 "content": f"You intelligently call functions here are some examples: "
+                            f"function: play_song(song_name)"
+                            f"query: play an underrated Ed Sheeran song"
+                            f"function call: play_song('Nancy Mulligan by Ed Sheeran', type='tracks')"
+                            f"function: check_weather(location)"
+                            f"query: whats it like temperature wise in the state where everything is big?"
+                            f"function_call: check_weather('Dallas, Texas')"
+                            f"etc..."},
+
+
+                {"role": "user", "content": f"function: ```{function_signature}```\n"
+                                            "query: '" + query +
+                                            f"\nfunction call: {func.__name__}(<fill this in>) respond with just the one line, `function(args)`!",}
+
             ]
 
-            response = openai.ChatCompletion.create(model=model, messages=messages, temperature=1)
-            assistant_message = response['choices'][0]['message']['content']
+            response = openai.ChatCompletion.create(model=model, messages=messages, temperature=.6)
+            assistant_message = response['choices'][0]['message']['content'].replace("function call: ","").replace("`","")
+            assistant_message = func.__name__+assistant_message.split(func.__name__)[-1]
             print(assistant_message)
 
-            try:
-                arg_str = re.search(f"{func.__name__}\((.*?)\)", assistant_message).group(1)
-                arg_list = [arg.strip().replace("'","").replace('"',"") for arg in arg_str.split(',')]
-            except AttributeError:
-                return f"Could not extract arguments for {func.__name__} based on query."
-
-            return func(*arg_list)
-        else:
-            return func(*args, **kwargs)
+        exec(assistant_message.replace(f"{func.__name__}(","func("))
 
     return wrapper
 
