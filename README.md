@@ -108,3 +108,8 @@ See router.py and smarter.py for implementation details.
 ## License  
 
 MIT
+
+### Buy Me a Coffee?
+Hey, I'm pretty broke but I'm making these things for free, if you want
+feel free to buy me a coffee :)
+https://www.buymeacoffee.com/danieljlosey
