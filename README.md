@@ -90,6 +90,17 @@ See example.py for more details.
     pip install spacy openai
     git clone (this repo)
 
+## Advanced Usage
+- The astrix, you may add an astrix before a word to emphasize importance
+  - `@router.route(["play **song by`])` As you can see you can also add multiple *'s
+- Brackets (POS tagging):
+  - `@router.route(["play **song by [Taylor Swift]"])` This will replace Taylor Swift with a Parts of Speech tag.
+  - If another artist is named "Harry Styles" for example, it will still trigger as being similar to Taylor Swift as
+  - both are names. This works for most types of words, [Google] = "Amazon"
+- Custom thresholds
+  - `router.query_and_call("something", thresh=.5)` experiment with this.
+- Put the LLM output back through the route.
+  - `router.query_and_call("As a language model...", thresh=.19)` Notice how the thresh is lower because the output of the LLM is longer than the input of a user.
 ## Reference
 
 See router.py and smarter.py for implementation details.
