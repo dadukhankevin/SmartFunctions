@@ -56,4 +56,33 @@ def smart_function(func):
         exec(assistant_message.replace(f"{func.__name__}(","func("))
 
     return wrapper
+def find_function_calls(text):
+    # Regex pattern to find function calls
+    pattern = r'\w+\([^\)]*\)'
+    return re.findall(pattern, text)
 
+class GeniusFunction:
+    def __init__(self):
+        self.model = "gpt-3.5-turbo"
+        self.function_names = []  # List to store function names, could be useful later
+
+    def smart_function_call(self, func):
+        self.function_names.append(func.__name__)  # Add function name to list
+
+        @functools.wraps(func)
+        def wrapper(query):
+            if query:
+                messages = [{"role": "system", "content": inspect.getdoc(func).format(query)}, {"role": "user",
+                                                        "content": "Create the function call based on the query"}]
+                response = openai.ChatCompletion.create(model=self.model, messages=messages, temperature=.6)
+                assistant_message = response['choices'][0]['message']['content']
+                function_calls = find_function_calls(assistant_message)
+                r = []
+                for function_call in function_calls:
+                    r.append(exec(function_call.replace(func.__name__+"(", "func(")))
+                return r
+        return wrapper
+
+
+# Example usage:
+sfc = GeniusFunction()

@@ -19,7 +19,7 @@ It doesn't make sense to use complex (and time consuming) chain-of-thought agent
 This is a small example, and its aim is mostly to change peoples minds. But hopefully it is also usefull!
 ## Key Features
 
-- Router class routes text queries to functions based on registered phrases
+- Router class routes text queries to functions based on registered phrases (for now this class sucks... prolly switch to n-shot HF model soon)
 - smart_function decorator leverages GPT-3.5 to map queries to function calls   
 - Avoid complex virtual agents - route queries directly to functions
 - Saves tons of time, you don't want to have to wait 10 seconds for an AI to respond.
@@ -68,7 +68,6 @@ router.query_and_call("What's the weather in Paris today?")
 ```python
 @smart_function
 def weather(location): # best to keep these functions to only a few lines, so call other functions within them
-  """Some info for the llm to know here"""  
   # Get weather at location
   print("woot! we have a location, ", location)
 ```
@@ -77,14 +76,30 @@ def weather(location): # best to keep these functions to only a few lines, so ca
 weather(query="Can you show me the weather somewhere humid?")
 ```
 * Note: Some work needs to be done with the prompts used to ensure this is consistant, however it seems better already than LangChain's frequent "ParsingErrors" which occur every time an agent outputs something vaguely unexpected.
-
+### Use the GeniusFunction class
 The LLM will then call the original (undecorated) `weather` function like this:
 `weather(location="Chiang Mai, Thailand")` It automatically filled in a humid location!
 
 No complex training or agents needed!
 
 See example.py for more details.  
+```python
+from Smarter import smarter
+genius = smarter.GeniusFunction()
 
+@genius.smart_function_call
+def send_message(to: str, body: str, time: str):
+    """You are Hermes, messenger of the gods. Please create the 'body' of the message in a way worthy of the gods,
+    reformat the users query: "{}"
+    and make it into a natural sounding message like this:
+    send_message(to, body="Hello, I am Hermes, messenger of the gods, on behalf of (name) I humbly request your presence
+    with (name) tomorrow at lunch"
+    """
+    #whatever you want here
+    messeges.send(to, body, time) #dummy function
+
+```
+```
 ## Installation
 
     pip install spacy openai
