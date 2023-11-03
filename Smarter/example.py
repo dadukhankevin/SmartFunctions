@@ -1,28 +1,37 @@
-from Smarter.router import Router
-from Smarter.smarter import smart_function
+from Smarter.router import SmartRouter
+from Smarter.smarter import SmartFunctionCaller
 
-router = Router()
+caller = SmartFunctionCaller("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", agent_name="Phoenix")
 
-@smart_function
+router = SmartRouter()
+
+
+@caller.smart_function_call(example_query="what is the weather in the land of lincoln?",
+                            example_call="ask_weather('Chicago')")
 def ask_weather(location: str):
-    """The location you are asking the weather of"""
-    #tbd
-    return location
+    print("You are asking for weather in:" + location)
 
-@smart_function
-def ask_news(topic: str, source_url: str):
+
+@caller.smart_function_call(example_query="what is happening in Germany right now",
+                            example_call="ask_news(topic='Germany', source_url='https://www.bbc.co.uk/')")
+def ask_news(topic: str, source_url: str = "https://www.google.com"):
     """Find news on a specific topic from a specific source, default CNN"""
-    #tbd
-    return f"getting news on {topic} from {source_url}"
+    print(f"getting news on {topic} from {source_url}")
 
-@router.route(["weather in city"])
+print(ask_news("what is the news in Germany"))
+
+@router.route(["what is the weather in location"])
 def get_weather_in_city(text):
     r = ask_weather(query=text)
+    print(f"Getting weather in {r}")
     return r
 
-@router.route(["news about category"])
+
+@router.route(["asking for news", "current events"])
 def get_news_category(text):
     r = ask_news(query=text)
     return r
-result = router.query_and_call("What's the weather in San Francisco? Also show me tech news.")
+
+
+result = router.query_and_call("What's the news")
 print(result)
