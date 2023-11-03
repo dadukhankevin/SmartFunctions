@@ -2,9 +2,6 @@ import openai
 import functools
 import re
 
-openai.api_key = "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"
-
-
 def extract(func_call, **kwargs):
     match = re.match(r"(\w+)\((.*?)\)", func_call)
     if match:
@@ -53,14 +50,3 @@ class SmartFunctionCaller:
 
         return decorator
 
-
-
-caller = SmartFunctionCaller("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", agent_name="Phoenix")
-
-@caller.smart_function_call(example_query="what is the weather in the land of lincoln?",
-                            example_call="ask_weather('Chicago')")
-def ask_weather(location: str):
-    return "here ya go"+location
-
-print(ask_weather("what is the weather Turkey"))
-input()

@@ -1,7 +1,7 @@
 from Smarter.router import SmartRouter
 from Smarter.smarter import SmartFunctionCaller
 
-caller = SmartFunctionCaller("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", agent_name="Phoenix")
+caller = SmartFunctionCaller(<yourapikey>, agent_name="Phoenix")
 
 router = SmartRouter()
 
