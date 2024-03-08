@@ -55,7 +55,9 @@ class SmartFunctionCaller:
                 ]
 
                 response = self.anthropic_client.messages.create(model=self.model, max_tokens=1024, messages=messages)
+                print(response)
                 assistant_message = response.content[0].text
+                print(assistant_message)
                 function_calls = find_function_calls(assistant_message)
                 for function_call in function_calls:
                     exec(function_call.replace(func.__name__ + "(", "func("))  # Assign the return value to result
