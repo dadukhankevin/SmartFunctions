@@ -1,18 +1,37 @@
-import os
+from Smarter.router import SmartRouter
+from Smarter.smarter import SmartFunctionCaller
 
-def write_python_file_contents(directory):
-    with open("total_code.txt", "w") as total_code_file:
-        for root, _, files in os.walk(directory):
-            for file in files:
-                if file.endswith(".py"):
-                    file_path = os.path.join(root, file)
-                    relative_path = os.path.relpath(file_path, directory)
-                    total_code_file.write(f"filename: {relative_path}\ncontents:\n")
+caller = SmartFunctionCaller("your_anthropic_api_key", agent_name="Phoenix")
 
-                    with open(file_path, "r") as python_file:
-                        total_code_file.write(python_file.read())
-                    total_code_file.write("\n")
+router = SmartRouter()
 
-if __name__ == "__main__":
-    directory = input("Enter the directory path: ")
-    write_python_file_contents(directory)
+
+@caller.smart_function_call(example_query="what is the weather in the land of lincoln?",
+                            example_call="ask_weather('Chicago')")
+def ask_weather(location: str):
+    print("You are asking for weather in:" + location)
+
+
+@caller.smart_function_call(example_query="what is happening in Germany right now",
+                            example_call="ask_news(topic='Germany', source_url='https://www.bbc.co.uk/')")
+def ask_news(topic: str, source_url: str = "https://www.google.com"):
+    """Find news on a specific topic from a specific source, default CNN"""
+    print(f"getting news on {topic} from {source_url}")
+
+print(ask_news("what is the news in Germany"))
+
+@router.route(["what is the weather in location"])
+def get_weather_in_city(text):
+    r = ask_weather(query=text)
+    print(f"Getting weather in {r}")
+    return r
+
+
+@router.route(["asking for news", "current events"])
+def get_news_category(text):
+    r = ask_news(query=text)
+    return r
+
+
+result = router.query_and_call("What's the news")
+print(result)
