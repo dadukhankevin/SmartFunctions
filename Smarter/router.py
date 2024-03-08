@@ -16,7 +16,6 @@ class SmartRouter:
 
         return wrapper
 
-    #
     def query_and_call(self, text):
         scores = self.classifier(text, list(self.labels.keys()))
         best_keyphrase = scores['labels'][0]
