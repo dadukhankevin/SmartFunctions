@@ -1,0 +1,17 @@
+# Core dependencies for ActiveAssistant
+numpy
+sounddevice
+mlx_whisper
+torch
+requests
+txtai
+
+# Other dependencies
+openai
+ocrmac
+pyautogui
+pyperclip
+keyboard
+python-dotenv
+
+# No additional VAD dependencies needed - using simple energy-based detection
