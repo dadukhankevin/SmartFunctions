@@ -13,5 +13,6 @@ pyautogui
 pyperclip
 keyboard
 python-dotenv
+python-cec
 
 # No additional VAD dependencies needed - using simple energy-based detection

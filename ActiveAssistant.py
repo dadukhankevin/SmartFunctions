@@ -72,6 +72,20 @@ class ActiveAssistant:
         
         # Audio queue
         self.audio_q = queue.Queue()
+
+    def arm_next_phrase(self, timeout: float = 12.0):
+        """Arm the assistant to treat the next completed user phrase as a reply without blocking.
+        Keeps normal listening; just widens the auto-trigger window and allows wake-word bypass.
+        """
+        # Ensure we're actively listening
+        self.assistant_speaking = False
+        now = time.time()
+        # Open both auto-trigger and forced-listen windows
+        self.auto_trigger_end_time = max(self.auto_trigger_end_time, now + float(timeout))
+        self.force_listen_until = max(self.force_listen_until, now + float(timeout))
+        # Clear de-duplication so we emit promptly
+        self.last_emitted_transcription = ""
+        self.last_emitted_time = 0.0
     
     def is_volume_above_threshold(self, buf):
         """Simple volume-based detection"""
@@ -151,38 +165,7 @@ class ActiveAssistant:
         if self.verbose:
             print("🗑️ Conversation history cleared")
     
-    def wait_for_response(self, timeout=30.0):
-        """Wait for the next user speech and return it immediately"""
-        if self.verbose:
-            print("👂 Waiting for user response...")
-        
-        # Set up a one-time listener
-        response_received = threading.Event()
-        user_response = [None]
-        
-        def response_callback(transcription, history):
-            user_response[0] = transcription
-            response_received.set()
-        
-        # Temporarily override the callback
-        original_callback = self.callback
-        self.callback = response_callback
-        
-        # Force listening regardless of wake word during this window
-        self.force_listen_until = time.time() + float(timeout)
-        
-        # Wait for response
-        try:
-            if response_received.wait(timeout=timeout):
-                return user_response[0]
-            else:
-                if self.verbose:
-                    print("⏰ Response timeout - no speech detected")
-                return None
-        finally:
-            # Restore original callback and clear forced listening
-            self.callback = original_callback
-            self.force_listen_until = 0.0
+    # Removed blocking wait_for_response in favor of non-blocking arm_next_phrase
     
     def on_trigger_detected(self, transcription, matched_words):
         """Handle detection of trigger words"""

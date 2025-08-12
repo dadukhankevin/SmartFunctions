@@ -3,9 +3,9 @@
   "content": true,
   "dimensions": 384,
   "backend": "faiss",
-  "offset": 201,
+  "offset": 491,
   "build": {
-    "create": "2025-08-10T03:17:15Z",
+    "create": "2025-08-12T15:36:24Z",
     "python": "3.11.12",
     "settings": {
       "components": "IDMap,Flat"
@@ -13,6 +13,6 @@
     "system": "Darwin (arm64)",
     "txtai": "8.6.0"
   },
-  "update": "2025-08-10T03:17:15Z",
+  "update": "2025-08-12T15:36:24Z",
   "format": "json"
 }
